@@ -6,7 +6,7 @@
 
 Name:          wifiman-desktop
 Version:       1.3.0
-Release:       1
+Release:       2
 Summary:       Discover devices and access Teleport VPNs
 License:       LicenseRef-Proprietary AND MIT AND GPL-2.0-only
 Vendor:        Ubiquiti Inc. <monitoring@wifiman.com>
@@ -104,6 +104,11 @@ fi
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{modulename}
 
 %changelog
+* Mon Oct 05 2026 Charles LESECQ <charles@lesecq.eu> 1.3.0-2
+- docs: move Copr to coles/wifiman-desktop and document GitHub releases
+  (charles@lesecq.eu)
+- feat(selinux): run daemon as unconfined_service_t (charles@lesecq.eu)
+
 * Mon Oct 05 2026 Charles LESECQ <charles@lesecq.eu> 1.3.0-1
 - ci: build RPM with tito and publish releases on tag (charles@lesecq.eu)
 - fix(spec): match only the app process in %%preun pkill (charles@lesecq.eu)
