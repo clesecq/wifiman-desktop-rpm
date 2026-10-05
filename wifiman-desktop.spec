@@ -102,7 +102,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%dir %attr(755, root, roo) %{_prefix}/lib/wi-fiman-desktop
+%dir %attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop
 %attr(644, root, root) %{_prefix}/lib/wi-fiman-desktop/.env
 %attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wg
 %attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wg-quick
