@@ -18,14 +18,12 @@ BuildRequires: desktop-file-utils
 BuildRequires: gzip
 BuildRequires: systemd-rpm-macros
 BuildRequires: tar
-BuildRequires: xz
 
 Requires: net-tools
 Requires: iw
 %{?systemd_requires}
-Requires: libappindicator-gtk3
-Requires: webkit2gtk4.1
-Requires: gtk3
+# tray icon library is dlopen()ed, so it is not picked up automatically
+Requires: libayatana-appindicator-gtk3
 
 %description
 WiFiman is here to save your home or office network from sluggish surfing, endless buffering, and congested data channels.
