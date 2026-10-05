@@ -23,13 +23,7 @@ dnf install wifiman-desktop
 ```
 
 ### From GitHub releases
-Prebuilt RPMs are attached to each [release](https://github.com/clesecq/wifiman-desktop-rpm/releases). Install the latest one directly:
-
-```sh
-dnf install https://github.com/clesecq/wifiman-desktop-rpm/releases/download/wifiman-desktop-1.3.0-1/wifiman-desktop-1.3.0-1.x86_64.rpm
-```
-
-Or download it with the GitHub CLI and install the local file:
+Prebuilt RPMs are attached to each [release](https://github.com/clesecq/wifiman-desktop-rpm/releases). Download the `.x86_64.rpm` from the [latest release](https://github.com/clesecq/wifiman-desktop-rpm/releases/latest), or fetch it with the GitHub CLI, then install the local file:
 
 ```sh
 gh release download --repo clesecq/wifiman-desktop-rpm --pattern '*.x86_64.rpm'
