@@ -1,0 +1,75 @@
+name: Check for upstream update
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  MANIFEST_URL: https://desktop.wifiman.com/wifiman-desktop-linux-manifest.json
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare manifest with spec
+        id: check
+        run: |
+          manifest=$(curl -fsSL "$MANIFEST_URL")
+          latest=$(jq -r '.version' <<<"$manifest")
+          url=$(jq -r '.platforms["linux-x86_64"]' <<<"$manifest")
+          sha256=$(jq -r '.checksums["linux-x86_64"]' <<<"$manifest")
+          current=$(sed -n 's/^Version:[[:space:]]*//p' wifiman-desktop.spec)
+
+          echo "current=$current latest=$latest"
+          if [ "$(printf '%s\n%s\n' "$current" "$latest" | sort -V | tail -n1)" = "$current" ]; then
+            echo "Up to date"
+            exit 0
+          fi
+
+          curl -fsSL -o upstream.deb "$url"
+          echo "$sha256  upstream.deb" | sha256sum -c -
+          rm upstream.deb
+
+          {
+            echo "update=true"
+            echo "version=$latest"
+            echo "url=$url"
+            echo "sha256=$sha256"
+            echo "pub_date=$(jq -r '.pub_date' <<<"$manifest")"
+          } >> "$GITHUB_OUTPUT"
+
+      # tito writes the %changelog entry when the release is tagged, so only bump Version/Release here
+      - name: Bump spec version
+        if: steps.check.outputs.update == 'true'
+        run: |
+          sed -i \
+            -e "s/^\(Version:[[:space:]]*\).*/\1${{ steps.check.outputs.version }}/" \
+            -e "s/^\(Release:[[:space:]]*\).*/\11/" \
+            wifiman-desktop.spec
+
+      - name: Open pull request
+        if: steps.check.outputs.update == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # GITHUB_TOKEN-created PRs don't trigger build.yml; set PR_TOKEN to a PAT to get CI on the PR
+          token: ${{ secrets.PR_TOKEN || github.token }}
+          branch: auto/update-wifiman-desktop
+          delete-branch: true
+          commit-message: 'feat: update to WiFiman Desktop ${{ steps.check.outputs.version }}'
+          title: 'feat: update to WiFiman Desktop ${{ steps.check.outputs.version }}'
+          body: |
+            Upstream manifest reports a new version.
+
+            - Version: `${{ steps.check.outputs.version }}`
+            - Published: ${{ steps.check.outputs.pub_date }}
+            - Package: ${{ steps.check.outputs.url }}
+            - SHA-256 (verified): `${{ steps.check.outputs.sha256 }}`
+
+            Merging tags and publishes the release automatically (tag.yml).
