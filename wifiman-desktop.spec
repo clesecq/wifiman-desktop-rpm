@@ -15,7 +15,7 @@ ExclusiveArch: x86_64
 
 # tito generates Source0 from the git tree; it carries the SELinux module
 Source0:  %{name}-%{version}.tar.gz
-Source1:  https://desktop.ea.wifiman.com/wifiman-desktop-%{version}-amd64.deb
+Source1:  https://desktop.wifiman.com/wifiman-desktop-%{version}-amd64.deb
 
 BuildRequires: binutils
 BuildRequires: bzip2
