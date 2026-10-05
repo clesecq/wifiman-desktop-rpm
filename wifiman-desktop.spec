@@ -87,17 +87,6 @@ if [ $1 -eq 0 ] ; then
   gtk-update-icon-cache %{_datadir}/icons/hicolor &> /dev/null || :
 fi
 
-# Only perform cleanup if this is a complete removal, not just an upgrade
-if [ $1 -eq 0 ]; then
-    rm -rf %{_prefix}/lib/wifiman-desktop/
-    for homedir in /home/*; do
-        if [ -d "$homedir/.local/share/ui.wifiman.desktop/" ]; then
-            echo "Removing $homedir/.local/share/ui.wifiman.desktop/assets/devices/"
-            rm -rf "$homedir/.local/share/ui.wifiman.desktop/assets/devices/"
-        fi
-    done
-fi
-
 %files
 %defattr(-,root,root,-)
 %dir %attr(755, root, root) %{_prefix}/lib/wifiman-desktop
