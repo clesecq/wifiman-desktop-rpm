@@ -66,7 +66,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/wifiman-desktop.deskt
 
 %preun
 if [ $1 -eq 0 ] ; then
-  pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
+  pkill -SIGTERM -f '^(%{_bindir}/)?wifiman-desktop( |$)' &> /dev/null || :
 fi
 %systemd_preun %{name}.service
 
