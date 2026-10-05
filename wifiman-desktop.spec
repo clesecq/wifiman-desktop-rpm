@@ -16,13 +16,13 @@ Source1:  https://desktop.ea.wifiman.com/wifiman-desktop-%{version}-amd64.deb
 BuildRequires: binutils
 BuildRequires: desktop-file-utils
 BuildRequires: gzip
-BuildRequires: systemd-units
+BuildRequires: systemd-rpm-macros
 BuildRequires: tar
 BuildRequires: xz
 
 Requires: net-tools
 Requires: iw
-Requires: systemd
+%{?systemd_requires}
 Requires: libappindicator-gtk3
 Requires: webkit2gtk4.1
 Requires: gtk3
@@ -56,14 +56,14 @@ install -m 0755 -vp usr/lib/wifiman-desktop/wg %{buildroot}%{_prefix}/lib/wifima
 install -m 0755 -vp usr/lib/wifiman-desktop/wg-quick %{buildroot}%{_prefix}/lib/wifiman-desktop/
 install -m 0755 -vp usr/lib/wifiman-desktop/wifiman-desktopd %{buildroot}%{_prefix}/lib/wifiman-desktop/
 install -m 0755 -vp usr/lib/wifiman-desktop/wireguard-go %{buildroot}%{_prefix}/lib/wifiman-desktop/
-install -m 0644 -vp usr/lib/wifiman-desktop/wifiman-desktop.service %{buildroot}%{_prefix}/lib/wifiman-desktop/%{name}.service
 install -m 0644 -vp usr/lib/wifiman-desktop/.env %{buildroot}%{_prefix}/lib/wifiman-desktop/
+
+install -m 0644 -vpD usr/lib/wifiman-desktop/wifiman-desktop.service %{buildroot}%{_unitdir}/%{name}.service
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/wifiman-desktop.desktop
 
 %post
-cp %{_prefix}/lib/wifiman-desktop/%{name}.service %{_unitdir}/%{name}.service
 %systemd_post %{name}.service
 
 update-mime-database /usr/share/mime &> /dev/null || :
@@ -77,9 +77,6 @@ pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
 %systemd_preun %{name}.service
 
 %postun
-if [ $1 -eq 0 ] ; then
-  rm -f %{_unitdir}/%{name}.service
-fi
 %systemd_postun_with_restart %{name}.service
 
 if [ $1 -eq 0 ] ; then
@@ -108,9 +105,9 @@ fi
 %attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wg
 %attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wg-quick
 %attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wifiman-desktopd
-%attr(644, root, root) %{_prefix}/lib/wifiman-desktop/wifiman-desktop.service
 %attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wireguard-go
 %attr(755, root, root) %{_bindir}/wifiman-desktop
+%attr(644, root, root) %{_unitdir}/%{name}.service
 %attr(644, root, root) %{_datadir}/applications/wifiman-desktop.desktop
 %attr(644, root, root) %{_datadir}/icons/hicolor/*/apps/wifiman-desktop.png
 
