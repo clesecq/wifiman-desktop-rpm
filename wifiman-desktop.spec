@@ -49,21 +49,21 @@ install -m 0755 -vd %{buildroot}%{_datadir}
 cp -R usr/share/* %{buildroot}%{_datadir}/
 
 install -m 0755 -vd %{buildroot}%{_bindir}
-install -m 0755 -vp usr/bin/wi-fiman-desktop %{buildroot}%{_bindir}/
+install -m 0755 -vp usr/bin/wifiman-desktop %{buildroot}%{_bindir}/
 
-install -m 0755 -vd %{buildroot}%{_prefix}/lib/wi-fiman-desktop
-install -m 0755 -vp usr/lib/wi-fiman-desktop/wg %{buildroot}%{_prefix}/lib/wi-fiman-desktop/
-install -m 0755 -vp usr/lib/wi-fiman-desktop/wg-quick %{buildroot}%{_prefix}/lib/wi-fiman-desktop/
-install -m 0755 -vp usr/lib/wi-fiman-desktop/wifiman-desktopd %{buildroot}%{_prefix}/lib/wi-fiman-desktop/
-install -m 0755 -vp usr/lib/wi-fiman-desktop/wireguard-go %{buildroot}%{_prefix}/lib/wi-fiman-desktop/
-install -m 0644 -vp usr/lib/wi-fiman-desktop/wifiman-desktop.service %{buildroot}%{_prefix}/lib/wi-fiman-desktop/%{name}.service
-install -m 0644 -vp usr/lib/wi-fiman-desktop/.env %{buildroot}%{_prefix}/lib/wi-fiman-desktop/
+install -m 0755 -vd %{buildroot}%{_prefix}/lib/wifiman-desktop
+install -m 0755 -vp usr/lib/wifiman-desktop/wg %{buildroot}%{_prefix}/lib/wifiman-desktop/
+install -m 0755 -vp usr/lib/wifiman-desktop/wg-quick %{buildroot}%{_prefix}/lib/wifiman-desktop/
+install -m 0755 -vp usr/lib/wifiman-desktop/wifiman-desktopd %{buildroot}%{_prefix}/lib/wifiman-desktop/
+install -m 0755 -vp usr/lib/wifiman-desktop/wireguard-go %{buildroot}%{_prefix}/lib/wifiman-desktop/
+install -m 0644 -vp usr/lib/wifiman-desktop/wifiman-desktop.service %{buildroot}%{_prefix}/lib/wifiman-desktop/%{name}.service
+install -m 0644 -vp usr/lib/wifiman-desktop/.env %{buildroot}%{_prefix}/lib/wifiman-desktop/
 
 %check
-desktop-file-validate %{buildroot}%{_datadir}/applications/wi-fiman-desktop.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/wifiman-desktop.desktop
 
 %post
-cp %{_prefix}/lib/wi-fiman-desktop/%{name}.service %{_unitdir}/%{name}.service
+cp %{_prefix}/lib/wifiman-desktop/%{name}.service %{_unitdir}/%{name}.service
 %systemd_post %{name}.service
 
 update-mime-database /usr/share/mime &> /dev/null || :
@@ -73,7 +73,7 @@ touch --no-create %{_datadir}/icons/hicolor &> /dev/null || :
 gtk-update-icon-cache %{_datadir}/icons/hicolor &> /dev/null || :
 
 %preun
-pkill -SIGTERM -f %{_bindir}/wi-fiman-desktop &> /dev/null || :
+pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
 %systemd_preun %{name}.service
 
 %postun
@@ -92,7 +92,7 @@ fi
 
 # Only perform cleanup if this is a complete removal, not just an upgrade
 if [ $1 -eq 0 ]; then
-    rm -rf %{_prefix}/lib/wi-fiman-desktop/
+    rm -rf %{_prefix}/lib/wifiman-desktop/
     for homedir in /home/*; do
         if [ -d "$homedir/.local/share/ui.wifiman.desktop/" ]; then
             echo "Removing $homedir/.local/share/ui.wifiman.desktop/assets/devices/"
@@ -103,16 +103,16 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%dir %attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop
-%attr(644, root, root) %{_prefix}/lib/wi-fiman-desktop/.env
-%attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wg
-%attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wg-quick
-%attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wifiman-desktopd
-%attr(644, root, root) %{_prefix}/lib/wi-fiman-desktop/wifiman-desktop.service
-%attr(755, root, root) %{_prefix}/lib/wi-fiman-desktop/wireguard-go
-%attr(755, root, root) %{_bindir}/wi-fiman-desktop
-%attr(644, root, root) %{_datadir}/applications/wi-fiman-desktop.desktop
-%attr(644, root, root) %{_datadir}/icons/hicolor/*/apps/wi-fiman-desktop.png
+%dir %attr(755, root, root) %{_prefix}/lib/wifiman-desktop
+%attr(644, root, root) %{_prefix}/lib/wifiman-desktop/.env
+%attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wg
+%attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wg-quick
+%attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wifiman-desktopd
+%attr(644, root, root) %{_prefix}/lib/wifiman-desktop/wifiman-desktop.service
+%attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wireguard-go
+%attr(755, root, root) %{_bindir}/wifiman-desktop
+%attr(644, root, root) %{_datadir}/applications/wifiman-desktop.desktop
+%attr(644, root, root) %{_datadir}/icons/hicolor/*/apps/wifiman-desktop.png
 
 %changelog
 * Thu Sep 05 2024 Arun Babu Neelicattu <arun.neelicattu@gmail.com> 0.3.0-3
