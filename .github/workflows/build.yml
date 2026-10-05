@@ -26,6 +26,10 @@ jobs:
       - name: Mark workspace safe for git
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+      # checkout replaces annotated tags with lightweight ones; tito then sees a mismatch with origin
+      - name: Restore annotated tags
+        run: git fetch --force --tags origin
+
       - name: Install build dependencies
         run: dnf builddep -y wifiman-desktop.spec
 
