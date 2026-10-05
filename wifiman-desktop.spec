@@ -73,7 +73,9 @@ touch --no-create %{_datadir}/icons/hicolor &> /dev/null || :
 gtk-update-icon-cache %{_datadir}/icons/hicolor &> /dev/null || :
 
 %preun
-pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
+if [ $1 -eq 0 ] ; then
+  pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
+fi
 %systemd_preun %{name}.service
 
 %postun
