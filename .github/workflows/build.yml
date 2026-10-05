@@ -6,9 +6,19 @@ on:
     tags: ['wifiman-desktop-*']
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to build and publish
+        required: true
+        type: string
 
 permissions:
   contents: read
+
+env:
+  # set when called from tag.yml, whose github.ref is still the branch
+  RELEASE_TAG: ${{ inputs.tag || (startsWith(github.ref, 'refs/tags/') && github.ref_name) || '' }}
 
 jobs:
   build:
@@ -21,6 +31,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.tag || '' }}
           fetch-depth: 0
 
       - name: Mark workspace safe for git
@@ -34,12 +45,12 @@ jobs:
         run: dnf builddep -y wifiman-desktop.spec
 
       - name: Build test RPM from HEAD
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        if: env.RELEASE_TAG == ''
         run: tito build --rpm --test -o dist
 
       - name: Build release RPM from tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: tito build --rpm --tag "$GITHUB_REF_NAME" -o dist
+        if: env.RELEASE_TAG != ''
+        run: tito build --rpm --tag "$RELEASE_TAG" -o dist
 
       - uses: actions/upload-artifact@v4
         with:
@@ -48,7 +59,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: inputs.tag || startsWith(github.ref, 'refs/tags/')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -62,7 +73,7 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ env.RELEASE_TAG }}
         run: |
           gh release create "$TAG" $(find dist -name '*.rpm') \
             --repo "$GITHUB_REPOSITORY" \

@@ -1,0 +1,64 @@
+name: Tag release
+
+on:
+  push:
+    branches: [main]
+    paths: [wifiman-desktop.spec]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tag-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Install tito
+        run: dnf install -y --setopt=install_weak_deps=False tito rpm-build git
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # checkout replaces annotated tags with lightweight ones; tito then sees a mismatch with origin
+      - name: Restore annotated tags
+        run: git fetch --force --tags origin
+
+      # skips spec changes that were already tagged, e.g. a manual tito tag or this job's own commit
+      - name: Tag new version
+        id: tag
+        run: |
+          version=$(rpmspec -q --qf '%{version}-%{release}\n' --srpm wifiman-desktop.spec)
+          tag="wifiman-desktop-$version"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag already exists"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tito tag --keep-version --accept-auto-changelog
+
+          # GITHUB_TOKEN pushes don't trigger workflows, so build.yml is called below instead
+          git push --follow-tags origin HEAD:main
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: tag
+    if: needs.tag.outputs.tag != ''
+    permissions:
+      contents: write
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: ${{ needs.tag.outputs.tag }}
