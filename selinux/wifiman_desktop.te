@@ -1,0 +1,6 @@
+policy_module(wifiman_desktop, 1.0.0)
+
+# The binaries ship under /usr/lib/wifiman-desktop and default to lib_t, so
+# systemd runs the daemon in init_t and every socket it opens is denied.
+# wifiman_desktop.fc labels them bin_t instead, so the unit transitions to
+# unconfined_service_t like any other third-party service.

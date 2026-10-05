@@ -1,0 +1,4 @@
+/usr/lib/wifiman-desktop/wifiman-desktopd	--	gen_context(system_u:object_r:bin_t,s0)
+/usr/lib/wifiman-desktop/wireguard-go	--	gen_context(system_u:object_r:bin_t,s0)
+/usr/lib/wifiman-desktop/wg	--	gen_context(system_u:object_r:bin_t,s0)
+/usr/lib/wifiman-desktop/wg-quick	--	gen_context(system_u:object_r:bin_t,s0)

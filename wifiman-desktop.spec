@@ -1,6 +1,8 @@
 %global _hardened_build 1
 %define _build_id_links none
 %define debug_package %{nil}
+%global selinuxtype targeted
+%global modulename wifiman_desktop
 
 Name:          wifiman-desktop
 Version:       1.3.0
@@ -11,17 +13,22 @@ Vendor:        Ubiquiti Inc. <monitoring@wifiman.com>
 URL:           https://wifiman.com/
 ExclusiveArch: x86_64
 
+# tito generates Source0 from the git tree; it carries the SELinux module
+Source0:  %{name}-%{version}.tar.gz
 Source1:  https://desktop.ea.wifiman.com/wifiman-desktop-%{version}-amd64.deb
 
 BuildRequires: binutils
+BuildRequires: bzip2
 BuildRequires: desktop-file-utils
 BuildRequires: gzip
+BuildRequires: selinux-policy-devel
 BuildRequires: systemd-rpm-macros
 BuildRequires: tar
 
 Requires: net-tools
 Requires: iw
 %{?systemd_requires}
+%{?selinux_requires}
 # tray icon library is dlopen()ed, so it is not picked up automatically
 Requires: libayatana-appindicator-gtk3
 
@@ -37,10 +44,13 @@ With this free-to-use (and ad-free) app you can:
 
 %prep
 %setup -cT
+tar xf %{SOURCE0} --strip-components=1
 ar x %{SOURCE1}
 tar xf data.tar.gz
 
 %build
+make -C selinux -f %{_datadir}/selinux/devel/Makefile %{modulename}.pp
+bzip2 -9 selinux/%{modulename}.pp
 
 %install
 install -m 0755 -vd %{buildroot}%{_datadir}
@@ -58,10 +68,15 @@ install -m 0644 -vp usr/lib/wifiman-desktop/.env %{buildroot}%{_prefix}/lib/wifi
 
 install -m 0644 -vpD usr/lib/wifiman-desktop/wifiman-desktop.service %{buildroot}%{_unitdir}/%{name}.service
 
+install -m 0644 -vpD selinux/%{modulename}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{modulename}.pp.bz2
+
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/wifiman-desktop.desktop
 
 %post
+%selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{modulename}.pp.bz2
+# files were unpacked before the module loaded, so they still carry lib_t
+restorecon -R %{_prefix}/lib/wifiman-desktop &> /dev/null || :
 %systemd_post %{name}.service
 
 %preun
@@ -71,6 +86,7 @@ fi
 %systemd_preun %{name}.service
 
 %postun
+%selinux_modules_uninstall -s %{selinuxtype} %{modulename}
 %systemd_postun_with_restart %{name}.service
 
 %files
@@ -84,6 +100,8 @@ fi
 %attr(644, root, root) %{_unitdir}/%{name}.service
 %attr(644, root, root) %{_datadir}/applications/wifiman-desktop.desktop
 %attr(644, root, root) %{_datadir}/icons/hicolor/*/apps/wifiman-desktop.png
+%attr(644, root, root) %{_datadir}/selinux/packages/%{selinuxtype}/%{modulename}.pp.bz2
+%ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{modulename}
 
 %changelog
 * Mon Oct 05 2026 Charles LESECQ <charles@lesecq.eu> 1.3.0-1
