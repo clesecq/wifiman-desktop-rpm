@@ -37,10 +37,10 @@ With this free-to-use (and ad-free) app you can:
 
 %prep
 %setup -cT
-
-%build
 ar x %{SOURCE1}
 tar xf data.tar.gz
+
+%build
 
 %install
 install -m 0755 -vd %{buildroot}%{_datadir}
@@ -64,12 +64,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/wifiman-desktop.deskt
 %post
 %systemd_post %{name}.service
 
-update-mime-database /usr/share/mime &> /dev/null || :
-update-desktop-database /usr/share/applications &> /dev/null || :
-
-touch --no-create %{_datadir}/icons/hicolor &> /dev/null || :
-gtk-update-icon-cache %{_datadir}/icons/hicolor &> /dev/null || :
-
 %preun
 if [ $1 -eq 0 ] ; then
   pkill -SIGTERM -f %{_bindir}/wifiman-desktop &> /dev/null || :
@@ -79,16 +73,7 @@ fi
 %postun
 %systemd_postun_with_restart %{name}.service
 
-if [ $1 -eq 0 ] ; then
-  update-mime-database /usr/share/mime &> /dev/null || :
-  update-desktop-database /usr/share/applications &> /dev/null || :
-
-  touch --no-create %{_datadir}/icons/hicolor &> /dev/null || :
-  gtk-update-icon-cache %{_datadir}/icons/hicolor &> /dev/null || :
-fi
-
 %files
-%defattr(-,root,root,-)
 %dir %attr(755, root, root) %{_prefix}/lib/wifiman-desktop
 %attr(644, root, root) %{_prefix}/lib/wifiman-desktop/.env
 %attr(755, root, root) %{_prefix}/lib/wifiman-desktop/wg
