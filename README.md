@@ -37,3 +37,22 @@ Once installed you can enable and start the daemon using the following command, 
 ```sh
 systemctl enable --now wifiman-desktop.service
 ```
+
+## Release flow
+Releases are automated with GitHub Actions and [tito](https://github.com/rpm-software-management/tito):
+
+1. [`check-update.yml`](.github/workflows/check-update.yml) runs daily. It reads the upstream
+   [manifest](https://desktop.wifiman.com/wifiman-desktop-linux-manifest.json), verifies the `.deb` checksum and,
+   when a newer version is out, opens a pull request bumping `Version` (and resetting `Release` to `1`) in the spec.
+2. Merging the pull request triggers [`tag.yml`](.github/workflows/tag.yml), which runs
+   `tito tag --keep-version --accept-auto-changelog`, pushes the changelog commit and tag, then calls
+   [`build.yml`](.github/workflows/build.yml) to build the RPM and publish the GitHub release.
+3. The Copr webhook builds the new tag on [coles/wifiman-desktop](https://copr.fedorainfracloud.org/coprs/coles/wifiman-desktop/).
+
+For packaging changes without a new upstream version, bump the release locally and push the commit and tag together;
+the tag push triggers `build.yml`:
+
+```sh
+tito tag
+git push --follow-tags origin main
+```
