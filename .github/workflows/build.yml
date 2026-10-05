@@ -1,0 +1,66 @@
+name: Build RPM
+
+on:
+  push:
+    branches: [main]
+    tags: ['wifiman-desktop-*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:latest
+    steps:
+      # git must exist before checkout, otherwise no .git directory for tito
+      - name: Install build tools
+        run: dnf install -y --setopt=install_weak_deps=False tito rpm-build rpmdevtools dnf-plugins-core git
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Mark workspace safe for git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install build dependencies
+        run: dnf builddep -y wifiman-desktop.spec
+
+      - name: Build test RPM from HEAD
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: tito build --rpm --test -o dist
+
+      - name: Build release RPM from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: tito build --rpm --tag "$GITHUB_REF_NAME" -o dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpms
+          path: dist/**/*.rpm
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: rpms
+          path: dist
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" $(find dist -name '*.rpm') \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$TAG" \
+            --generate-notes
