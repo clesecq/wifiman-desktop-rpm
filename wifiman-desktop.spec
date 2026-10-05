@@ -23,7 +23,7 @@ Requires: net-tools
 Requires: iw
 Requires: systemd
 Requires: libappindicator-gtk3
-Requires: webkit2gtk4.0
+Requires: webkit2gtk4.1
 Requires: gtk3
 
 %description
