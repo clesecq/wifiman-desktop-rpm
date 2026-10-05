@@ -86,6 +86,25 @@ fi
 %attr(644, root, root) %{_datadir}/icons/hicolor/*/apps/wifiman-desktop.png
 
 %changelog
+* Mon Oct 05 2026 Charles LESECQ <charles@lesecq.eu> 1.3.0-1
+- ci: build RPM with tito and publish releases on tag (charles@lesecq.eu)
+- fix(spec): match only the app process in %%preun pkill (charles@lesecq.eu)
+- refactor(spec): unpack in %%prep and drop obsolete scriptlets
+  (charles@lesecq.eu)
+- fix(spec): tidy dependencies (charles@lesecq.eu)
+- fix(spec): only kill running app on package removal (charles@lesecq.eu)
+- fix(spec): drop destructive %%postun cleanup (charles@lesecq.eu)
+- fix(spec): package systemd unit in %%{_unitdir} (charles@lesecq.eu)
+- fix(spec): declare actual license of packaged software (charles@lesecq.eu)
+- fix(spec): use wifiman-desktop paths from 1.x deb (charles@lesecq.eu)
+- feat(spec): add ExclusiveArch (charles@lesecq.eu)
+- feat(spec): upgrade webkit2gtk (charles@lesecq.eu)
+- fix(spec): typo in group (charles@lesecq.eu)
+- feat(spec): update to 1.3.0 (charles@lesecq.eu)
+- spec: update spec to support 1.x.x versions (etienne.barbier@eviden.com)
+- doc: daemon start instructions (arun.neelicattu@gmail.com)
+- doc: improve readme (arun.neelicattu@gmail.com)
+
 * Thu Sep 05 2024 Arun Babu Neelicattu <arun.neelicattu@gmail.com> 0.3.0-3
 - spec: include all arch debs in srpm (arun.neelicattu@gmail.com)
 
