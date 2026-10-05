@@ -1,4 +1,4 @@
-[![Copr Build Status](https://copr.fedorainfracloud.org/coprs/abn/wifiman-desktop/package/wifiman-desktop/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/abn/wifiman-desktop/)
+[![Copr Build Status](https://copr.fedorainfracloud.org/coprs/coles/wifiman-desktop/package/wifiman-desktop/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/coles/wifiman-desktop/)
 
 # RPM Package: wifiman-desktop
 
@@ -14,12 +14,29 @@ This repository holds the RPM package source for [wifiman-desktop](https://www.u
 
 
 ## Usage
-You can use this package by enabling the copr repository at [abn/wifiman-desktop](https://copr.fedorainfracloud.org/coprs/abn/wifiman-desktop/) as described [here](https://fedorahosted.org/copr/wiki/HowToEnableRepo).
+### From Copr
+You can use this package by enabling the copr repository at [coles/wifiman-desktop](https://copr.fedorainfracloud.org/coprs/coles/wifiman-desktop/) as described [here](https://fedorahosted.org/copr/wiki/HowToEnableRepo).
 
 ```sh
-dnf copr enable abn/wifiman-desktop
+dnf copr enable coles/wifiman-desktop
 dnf install wifiman-desktop
 ```
+
+### From GitHub releases
+Prebuilt RPMs are attached to each [release](https://github.com/clesecq/wifiman-desktop-rpm/releases). Install the latest one directly:
+
+```sh
+dnf install https://github.com/clesecq/wifiman-desktop-rpm/releases/download/wifiman-desktop-1.3.0-1/wifiman-desktop-1.3.0-1.x86_64.rpm
+```
+
+Or download it with the GitHub CLI and install the local file:
+
+```sh
+gh release download --repo clesecq/wifiman-desktop-rpm --pattern '*.x86_64.rpm'
+dnf install ./wifiman-desktop-*.x86_64.rpm
+```
+
+On rpm-ostree based systems (Silverblue, Kinoite, ...), use `rpm-ostree install ./wifiman-desktop-*.x86_64.rpm` and reboot.
 
 Once installed you can enable and start the daemon using the following command, then launch the application.
 
