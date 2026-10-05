@@ -2,13 +2,14 @@
 %define _build_id_links none
 %define debug_package %{nil}
 
-Name:     wifiman-desktop
-Version:  1.3.0
-Release:  1
-Summary:  Discover devices and access Teleport VPNs
-License:  MIT
-Vendor:   Ubiquiti Inc. <monitoring@wifiman.com>
-URL:      https://wifiman.com/
+Name:          wifiman-desktop
+Version:       1.3.0
+Release:       1
+Summary:       Discover devices and access Teleport VPNs
+License:       MIT
+Vendor:        Ubiquiti Inc. <monitoring@wifiman.com>
+URL:           https://wifiman.com/
+ExclusiveArch: x86_64
 
 Source1:  https://desktop.ea.wifiman.com/wifiman-desktop-%{version}-amd64.deb
 
